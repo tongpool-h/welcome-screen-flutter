@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'login_screen.dart';
 
+// Firebase Auth imports
+import 'package:firebase_auth/firebase_auth.dart';
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -47,6 +50,77 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isValidPhone(String phone) {
     final phoneRegex = RegExp(r'^[0-9]{10,}$');
     return phoneRegex.hasMatch(phone);
+  }
+
+  Future<void> registerWithFirebase() async {
+    try {
+      final name = _nameController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      final phone = _phoneController.text.trim();
+
+      // Register with Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Optionally update display name and phone
+      await userCredential.user?.updateDisplayName(name);
+
+      // Show success dialog
+      await showModernAlertDialog(
+        context,
+        'Registration Successful',
+        'Welcome, $name! \nYour account has been created.',
+        const Color.fromARGB(255, 202, 255, 202),
+      );
+
+      // Navigate to login screen after dialog
+      Future.delayed(const Duration(seconds: 5), () {
+        // Code to run after 2 seconds
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      });
+
+    } on FirebaseAuthException catch (e) {
+      await showModernAlertDialog(
+        context,
+        'Registration Failed',
+        e.message ?? 'An unknown error occurred.',
+        const Color.fromARGB(255, 254, 202, 202),
+      );
+    }
+  }
+
+  Future<void> showModernAlertDialog(
+    BuildContext context,
+    String title,
+    String message,
+    Color colors,
+  ) async{
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: colors,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.deepPurple),
+            const SizedBox(width: 4),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(message, style: const TextStyle(fontSize: 16)),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.deepPurple),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -242,6 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           _nameError = _nameController.text.isEmpty
                               ? 'Full name is required'
                               : null;
+
                           if (_emailController.text.isEmpty) {
                             _emailError = 'Email is required';
                           } else if (!_isValidEmail(_emailController.text)) {
@@ -249,6 +324,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           } else {
                             _emailError = null;
                           }
+
                           if (_passwordController.text.isEmpty) {
                             _passwordError = 'Password is required';
                           } else if (!_isValidPassword(
@@ -259,6 +335,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           } else {
                             _passwordError = null;
                           }
+
                           if (_repasswordController.text.isEmpty) {
                             _repasswordError = 'Please confirm your password';
                           } else if (_repasswordController.text !=
@@ -267,6 +344,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           } else {
                             _repasswordError = null;
                           }
+
                           if (_phoneController.text.isEmpty) {
                             _phoneError = 'Mobile phone is required';
                           } else if (!_isValidPhone(_phoneController.text)) {
@@ -274,8 +352,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           } else {
                             _phoneError = null;
                           }
+                          
                         });
+                        
                         // TODO: Implement register logic if all errors are null
+                        if (_nameError == null &&
+                            _emailError == null &&
+                            _passwordError == null &&
+                            _repasswordError == null &&
+                            _phoneError == null) {
+                          registerWithFirebase();
+                        }
+
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple,

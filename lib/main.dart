@@ -10,7 +10,18 @@ import 'screens/home_screen.dart';
 import 'screens/navigation_screen.dart';
 import 'screens/welcome_screen.dart';
 
-void main() {
+// Firebase imports
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+// Fix Code: Unused main method
+// void main() {
+//   runApp(const MyApp());
+// }
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
