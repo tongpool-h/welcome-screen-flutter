@@ -7,6 +7,7 @@ import 'package:welcome_screen/screens/slide_transition_screen.dart';
 
 import 'screens/home_screen.dart';
 
+import 'screens/list_product_screen.dart';
 import 'screens/navigation_screen.dart';
 import 'screens/welcome_screen.dart';
 
@@ -22,6 +23,7 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -57,7 +59,7 @@ class MyApp extends StatelessWidget {
       // home: HomeScreen(),
       // home: const NavigationScreen(),
       // home: CurvedNavbarScreen(),
-      home: LoginScreen(),
+      home: ListProductScreen(),
       // home: SlideTransitionScreen(),
       // home: CurvedNavbarScreen(),
     );

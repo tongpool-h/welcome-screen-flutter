@@ -67,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await userCredential.user?.updateDisplayName(name);
 
       // Show success dialog
-      await showModernAlertDialog(
+      await showModernSnackBar(
         context,
         'Registration Successful',
         'Welcome, $name! \nYour account has been created.',
@@ -82,9 +82,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       });
-
     } on FirebaseAuthException catch (e) {
-      await showModernAlertDialog(
+      await showModernSnackBar(
         context,
         'Registration Failed',
         e.message ?? 'An unknown error occurred.',
@@ -93,12 +92,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  Future<void> showModernSnackBar(
+    BuildContext context,
+    String title,
+    String message,
+    Color color,
+  ) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: color,
+        content: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.deepPurple),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(message, style: const TextStyle(color: Colors.black)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   Future<void> showModernAlertDialog(
     BuildContext context,
     String title,
     String message,
     Color colors,
-  ) async{
+  ) async {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -352,9 +389,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           } else {
                             _phoneError = null;
                           }
-                          
                         });
-                        
+
                         // TODO: Implement register logic if all errors are null
                         if (_nameError == null &&
                             _emailError == null &&
@@ -363,7 +399,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _phoneError == null) {
                           registerWithFirebase();
                         }
-
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple,

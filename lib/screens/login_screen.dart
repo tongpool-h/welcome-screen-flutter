@@ -43,40 +43,40 @@ class _LoginScreenState extends State<LoginScreen> {
   //   return hasLetter && hasNumber;
   // }
 
-Future<void> loginWithGoogle() async {
-  try {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    if (googleUser == null) return; // User cancelled
+  Future<void> loginWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return; // User cancelled
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-    await FirebaseAuth.instance.signInWithCredential(credential);
+      await FirebaseAuth.instance.signInWithCredential(credential);
 
-    showModernAlertDialog(
-      context,
-      'Login Successful',
-      'Welcome, ${googleUser.displayName ?? googleUser.email}!',
-      const Color.fromARGB(255, 219, 247, 233),
-    );
+      showModernAlertDialog(
+        context,
+        'Login Successful',
+        'Welcome, ${googleUser.displayName ?? googleUser.email}!',
+        const Color.fromARGB(255, 219, 247, 233),
+      );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ListProductScreen()),
-    );
-  } catch (e) {
-    showModernAlertDialog(
-      context,
-      'Login Failed',
-      e.toString(),
-      const Color.fromARGB(255, 254, 202, 202),
-    );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ListProductScreen()),
+      );
+    } catch (e) {
+      showModernAlertDialog(
+        context,
+        'Login Failed',
+        e.toString(),
+        const Color.fromARGB(255, 254, 202, 202),
+      );
+    }
   }
-}
-
 
   Future<void> loginWithEmailPassword(String email, String password) async {
     try {
@@ -85,7 +85,7 @@ Future<void> loginWithGoogle() async {
         password: password,
       );
       // print('Login susessfully: ${email}');
-      showModernAlertDialog(
+      showModernSnackBar(
         context,
         'Login Successful',
         'Welcome back, $email!',
@@ -100,17 +100,54 @@ Future<void> loginWithGoogle() async {
           MaterialPageRoute(builder: (context) => ListProductScreen()),
         );
       });
-
     } on FirebaseAuthException catch (e) {
       // Handle error (e.g., show error message)
       // print('Login error: ${e.message}');
-      showModernAlertDialog(
+      showModernSnackBar(
         context,
         'Login Failed',
         e.message ?? 'An unknown error occurred.',
         const Color.fromARGB(255, 254, 202, 202),
       );
     }
+  }
+
+  Future<void> showModernSnackBar(
+    BuildContext context,
+    String title,
+    String message,
+    Color color,
+  ) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: color,
+        content: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.deepPurple),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(message, style: const TextStyle(color: Colors.black)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void showModernAlertDialog(
